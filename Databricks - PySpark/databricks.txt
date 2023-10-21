@@ -1,0 +1,6 @@
+Application (client) ID: <>
+Directory (tenant) ID: <>
+Object ID: <>
+Secret: <>
+
+Access Token from DataBricks: <>
