@@ -1,0 +1,5 @@
+server = srv-transparencia-project.database.windows.net
+database = db-transparencia-project
+username = <username>
+password = <password>
+driver = {ODBC Driver 17 for SQL Server}
