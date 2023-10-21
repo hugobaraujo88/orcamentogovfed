@@ -1,0 +1,93 @@
+{
+    "name": "TransformPIB",
+    "properties": {
+        "type": "MappingDataFlow",
+        "typeProperties": {
+            "sources": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_sourcedatalake_csv_ibge",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SourcePib"
+                }
+            ],
+            "sinks": [
+                {
+                    "dataset": {
+                        "referenceName": "ds_sinkasql_pib",
+                        "type": "DatasetReference"
+                    },
+                    "name": "SinkPIBToSQL"
+                }
+            ],
+            "transformations": [
+                {
+                    "name": "MapDrifted",
+                    "description": "Creates an explicit mapping for each drifted column"
+                },
+                {
+                    "name": "CreateColumnAno"
+                },
+                {
+                    "name": "DropColumns"
+                },
+                {
+                    "name": "CastColumnsAsInteger"
+                },
+                {
+                    "name": "GroupByAno"
+                }
+            ],
+            "scriptLines": [
+                "source(output(",
+                "          V as string,",
+                "          D2C as string",
+                "     ),",
+                "     allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     ignoreNoFilesFound: false,",
+                "     skipLines: 1,",
+                "     partitionBy('hash', 1)) ~> SourcePib",
+                "SourcePib derive(Valor = toString(byName('Valor')),",
+                "          {Trimestre (Código)} = toString(byName('Trimestre (Código)')),",
+                "     partitionBy('hash', 1)) ~> MapDrifted",
+                "MapDrifted derive(Ano = dropRight({Trimestre (Código)}, 2),",
+                "     partitionBy('hash', 1)) ~> CreateColumnAno",
+                "CreateColumnAno select(mapColumn(",
+                "          ano = Ano,",
+                "          valor_pib = Valor",
+                "     ),",
+                "     partitionBy('hash', 1),",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true) ~> DropColumns",
+                "DropColumns cast(output(",
+                "          ano as integer,",
+                "          valor_pib as integer",
+                "     ),",
+                "     errors: true) ~> CastColumnsAsInteger",
+                "CastColumnsAsInteger aggregate(groupBy(ano),",
+                "     valor_pib = sum(valor_pib),",
+                "     partitionBy('hash', 1)) ~> GroupByAno",
+                "GroupByAno sink(allowSchemaDrift: true,",
+                "     validateSchema: false,",
+                "     input(",
+                "          id_pib as integer,",
+                "          ano as integer,",
+                "          valor_pib as integer",
+                "     ),",
+                "     deletable:false,",
+                "     insertable:true,",
+                "     updateable:false,",
+                "     upsertable:false,",
+                "     truncate:true,",
+                "     format: 'table',",
+                "     skipDuplicateMapInputs: true,",
+                "     skipDuplicateMapOutputs: true,",
+                "     saveOrder: 1,",
+                "     errorHandlingOption: 'stopOnFirstError',",
+                "     partitionBy('hash', 1)) ~> SinkPIBToSQL"
+            ]
+        }
+    }
+}

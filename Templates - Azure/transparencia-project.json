@@ -1,0 +1,10 @@
+{
+    "id": "/subscriptions/d936e19c-b66d-4fcb-9dcd-8cccd4cdfbab/resourceGroups/transparencia-project",
+    "name": "transparencia-project",
+    "type": "Microsoft.Resources/resourceGroups",
+    "location": "brazilsouth",
+    "tags": {},
+    "properties": {
+        "provisioningState": "Succeeded"
+    }
+}

@@ -1,0 +1,81 @@
+{
+    "name": "pl_ETL_transparencia_project",
+    "properties": {
+        "activities": [
+            {
+                "name": "pl_extract_transparenciagov",
+                "type": "ExecutePipeline",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "pl_extract_transparenciagov",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "pl_transform_transparenciagov",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "pl_extract_transparenciagov",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "pl_transform_transparenciagov",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "pl_ETL_ibge",
+                "type": "ExecutePipeline",
+                "dependsOn": [],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "pl_ETL_ibge",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            },
+            {
+                "name": "pl_loadsql_transparenciagov",
+                "type": "ExecutePipeline",
+                "dependsOn": [
+                    {
+                        "activity": "pl_transform_transparenciagov",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "pipeline": {
+                        "referenceName": "pl_loadsql_transparenciagov",
+                        "type": "PipelineReference"
+                    },
+                    "waitOnCompletion": true
+                }
+            }
+        ],
+        "variables": {
+            "teste": {
+                "type": "String"
+            }
+        },
+        "annotations": [],
+        "lastPublishTime": "2023-10-04T20:39:19Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

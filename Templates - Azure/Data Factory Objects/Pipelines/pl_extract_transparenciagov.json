@@ -1,0 +1,272 @@
+{
+    "name": "pl_extract_transparenciagov",
+    "properties": {
+        "activities": [
+            {
+                "name": "Lookup readurls",
+                "type": "Lookup",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "JsonSource",
+                        "storeSettings": {
+                            "type": "AzureBlobFSReadSettings",
+                            "recursive": true,
+                            "enablePartitionDiscovery": false
+                        },
+                        "formatSettings": {
+                            "type": "JsonReadSettings"
+                        }
+                    },
+                    "dataset": {
+                        "referenceName": "ds_sourcedatalake_json_lookup",
+                        "type": "DatasetReference"
+                    },
+                    "firstRowOnly": false
+                }
+            },
+            {
+                "name": "Get current year",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "ano",
+                    "value": {
+                        "value": "@formatDateTime(utcNow(),'yyyy')",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "Get current month",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "mes",
+                    "value": {
+                        "value": "@formatDateTime(subtractFromTime(utcnow(), 1, 'Month'),'MM')",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "Extract transparenciagov",
+                "type": "ForEach",
+                "dependsOn": [
+                    {
+                        "activity": "Lookup readurls",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Get current year",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Get current month",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "items": {
+                        "value": "@activity('Lookup readurls').output.value",
+                        "type": "Expression"
+                    },
+                    "isSequential": true,
+                    "activities": [
+                        {
+                            "name": "Extract csv",
+                            "type": "Copy",
+                            "dependsOn": [
+                                {
+                                    "activity": "Get Zip File",
+                                    "dependencyConditions": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ],
+                            "policy": {
+                                "timeout": "0.00:11:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "source": {
+                                    "type": "DelimitedTextSource",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSReadSettings",
+                                        "recursive": true,
+                                        "enablePartitionDiscovery": false
+                                    },
+                                    "formatSettings": {
+                                        "type": "DelimitedTextReadSettings",
+                                        "compressionProperties": {
+                                            "type": "ZipDeflateReadSettings"
+                                        }
+                                    }
+                                },
+                                "sink": {
+                                    "type": "DelimitedTextSink",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSWriteSettings"
+                                    },
+                                    "formatSettings": {
+                                        "type": "DelimitedTextWriteSettings",
+                                        "quoteAllText": true,
+                                        "fileExtension": ".txt"
+                                    }
+                                },
+                                "enableStaging": false,
+                                "translator": {
+                                    "type": "TabularTranslator",
+                                    "typeConversion": true,
+                                    "typeConversionSettings": {
+                                        "allowDataTruncation": true,
+                                        "treatBooleanAsNumber": false
+                                    }
+                                }
+                            },
+                            "inputs": [
+                                {
+                                    "referenceName": "ds_sourcedatalake_zip_transparenciagov",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "directory": {
+                                            "value": "@item().directory",
+                                            "type": "Expression"
+                                        },
+                                        "fileName": {
+                                            "value": "@if(equals(item().relativeURL, 'despesas-execucao/'), concat(variables('ano'),variables('mes'), item().fileName), concat(variables('ano'), item().fileName))",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "referenceName": "ds_sinkdatalake_csv_transparenciagov",
+                                    "type": "DatasetReference"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Get Zip File",
+                            "type": "Copy",
+                            "dependsOn": [],
+                            "policy": {
+                                "timeout": "0.00:11:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "source": {
+                                    "type": "BinarySource",
+                                    "storeSettings": {
+                                        "type": "HttpReadSettings",
+                                        "requestMethod": "GET",
+                                        "additionalHeaders": "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+                                        "requestTimeout": ""
+                                    },
+                                    "formatSettings": {
+                                        "type": "BinaryReadSettings"
+                                    }
+                                },
+                                "sink": {
+                                    "type": "BinarySink",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSWriteSettings"
+                                    }
+                                },
+                                "enableStaging": false
+                            },
+                            "inputs": [
+                                {
+                                    "referenceName": "ds_sourcehttp_transparenciagov",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "relativeURL": {
+                                            "value": "@if(equals(item().relativeURL, 'despesas-execucao/'), concat(item().relativeURL, variables('ano'),variables('mes') ), concat(item().relativeURL, variables('ano')))",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "referenceName": "ds_sinkdatalake_zip_transparenciagov",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "directory": {
+                                            "value": "@item().directory",
+                                            "type": "Expression"
+                                        },
+                                        "fileName": {
+                                            "value": "@if(equals(item().relativeURL, 'despesas-execucao/'), concat(variables('ano'),variables('mes'), item().fileName), concat(variables('ano'), item().fileName))",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "variables": {
+            "ano": {
+                "type": "String"
+            },
+            "mes": {
+                "type": "String"
+            },
+            "relativeURLArray": {
+                "type": "Array"
+            },
+            "directoryArray": {
+                "type": "Array"
+            },
+            "fileNameArray": {
+                "type": "Array"
+            },
+            "appendedarrays": {
+                "type": "String"
+            }
+        },
+        "folder": {
+            "name": "Transparenciagov data pipeline"
+        },
+        "annotations": [],
+        "lastPublishTime": "2023-10-04T14:05:16Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

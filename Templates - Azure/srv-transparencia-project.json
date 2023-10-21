@@ -1,0 +1,18 @@
+{
+    "kind": "v12.0",
+    "properties": {
+        "administratorLogin": "adm",
+        "version": "12.0",
+        "state": "Ready",
+        "fullyQualifiedDomainName": "srv-transparencia-project.database.windows.net",
+        "privateEndpointConnections": [],
+        "minimalTlsVersion": "1.2",
+        "publicNetworkAccess": "Enabled",
+        "restrictOutboundNetworkAccess": "Disabled"
+    },
+    "location": "brazilsouth",
+    "tags": {},
+    "id": "/subscriptions/d936e19c-b66d-4fcb-9dcd-8cccd4cdfbab/resourceGroups/transparencia-project/providers/Microsoft.Sql/servers/srv-transparencia-project",
+    "name": "srv-transparencia-project",
+    "type": "Microsoft.Sql/servers"
+}
