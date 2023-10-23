@@ -17,7 +17,7 @@
         "type": "AzureSqlTable",
         "schema": [],
         "typeProperties": {
-            "schema": "transparencia",
+            "schema": "hist",
             "table": {
                 "value": "@dataset().tableName",
                 "type": "Expression"
