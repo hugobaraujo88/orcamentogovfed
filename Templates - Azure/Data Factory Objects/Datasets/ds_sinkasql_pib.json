@@ -28,7 +28,7 @@
             }
         ],
         "typeProperties": {
-            "schema": "transparencia",
+            "schema": "hist",
             "table": "pib"
         }
     },
