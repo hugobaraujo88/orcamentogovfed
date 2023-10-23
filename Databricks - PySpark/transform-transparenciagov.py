@@ -16,6 +16,8 @@ year = datetime.date.today().year
 month = datetime.date.today().replace(day=1) - datetime.timedelta(days=1) 
 month = month.strftime('%m')
 
+datalakename = "adltransparenciapj"
+
 #last month because transparenciagov is yet to update their database... this month = datetime.date.today().month
 
 # Create a SparkSession
@@ -32,7 +34,7 @@ month = month.strftime('%m')
 category = 'Receitas'
 
 # Define the path to the raw data file
-raw_path = f"/mnt/adltransparenciaproject/extracted/{year}_Receitas.zip" #Adapt when in databricks
+raw_path = f"/mnt/{datalakename}/extracted/{year}_Receitas.zip" #Adapt when in databricks
 
 # Read the CSV file into a DataFrame (encoding = "ISO-8859-1" works)
 
@@ -120,10 +122,10 @@ df_receitas_real.na.drop(how="any")
 
 df_receitas_prev.write.format("com.databricks.spark.csv").option("header","true")\
     .option("delimiter", ";").mode("overwrite").option('encoding', 'cp1252')\
-        .save("/mnt/adltransparenciaproject/processed/receitas_prev")
+        .save(f"/mnt/{datalakename}/processed/receitas_prev")
 df_receitas_real.write.format("com.databricks.spark.csv").option("header","true")\
     .option("delimiter", ";").mode("overwrite").option('encoding', 'cp1252')\
-        .save("/mnt/adltransparenciaproject/processed/receitas_real")
+        .save(f"/mnt/{datalakename}/processed/receitas_real")
 
 
 #########################################################################
@@ -143,7 +145,7 @@ df_receitas_real.write.format("com.databricks.spark.csv").option("header","true"
 category = 'OrcamentoDespesa'
 
 # Define the path to the raw data file
-raw_path = f"/mnt/adltransparenciaproject/extracted/{year}_OrcamentoDespesa.zip" #Adapt when in databricks
+raw_path = f"/mnt/{datalakename}/extracted/{year}_OrcamentoDespesa.zip" #Adapt when in databricks
 
 # Read the CSV file into a DataFrame
 df_orcamento_despesa = spark.read.csv(raw_path, sep=r';', encoding='cp1252', header=True)
@@ -205,10 +207,10 @@ df_orcamento_despesa_atu.na.drop(how="any")
 
 df_orcamento_despesa_ini.write.format("com.databricks.spark.csv").option("header","true")\
     .option("delimiter", ";").mode("overwrite").option('encoding', 'cp1252')\
-        .save("/mnt/adltransparenciaproject/processed/orcamento_despesa_ini")
+        .save(f"/mnt/{datalakename}/processed/orcamento_despesa_ini")
 df_orcamento_despesa_atu.write.format("com.databricks.spark.csv").option("header","true")\
     .option("delimiter", ";").mode("overwrite").option('encoding', 'cp1252')\
-        .save("/mnt/adltransparenciaproject/processed/orcamento_despesa_atu")
+        .save(f"/mnt/{datalakename}/processed/orcamento_despesa_atu")
 
 
 #########################################################################
@@ -227,7 +229,7 @@ df_orcamento_despesa_atu.write.format("com.databricks.spark.csv").option("header
 category = 'Despesas'
 
 # Define the path to the raw data file
-raw_path = f"/mnt/adltransparenciaproject/extracted/{year}{month}_Despesas.zip" #Adapt when in databricks
+raw_path = f"/mnt/{datalakename}/extracted/{year}{month}_Despesas.zip" #Adapt when in databricks
 
 # Read the CSV file into a DataFrame
 df_despesa_exec = spark.read.csv(raw_path, sep=r';', encoding='cp1252', header=True)
@@ -279,7 +281,7 @@ df_despesa_exec = df_despesa_exec.drop("Valor Liquidado (R$)").drop("date_compon
 
 # COMMAND ----------
 
-df_despesa_exec = df_despesa_exec.withColumnRenamed("NOME FUNÇÃO", "nome_despesa_exec")\
+df_despesa_exec = df_despesa_exec.withColumnRenamed("NOME FUNÇÃO", "despesa_exec_nome")\
     .select("nome_despesa_exec", 'ano', 'mes', 'valor')
 
 # COMMAND ----------
@@ -293,7 +295,7 @@ df_despesa_exec.na.drop(how="any")
 
 df_despesa_exec.write.format("com.databricks.spark.csv").option("header","true")\
     .option("delimiter", ";").mode("overwrite").option('encoding', 'cp1252')\
-        .save("/mnt/adltransparenciaproject/processed/despesa_exec")
+        .save(f"/mnt/{datalakename}/processed/despesa_exec")
 
 
 #########################################################################
