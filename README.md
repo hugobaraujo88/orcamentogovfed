@@ -16,18 +16,18 @@ Este projeto tem como objetivo extrair e analisar dados do orçamento federal, a
 
 **5)** Dados brutos extraídos do IBGE são transformados utilizando o Data Flow (que também usa um cluster Spark): basicamente converte o PIB trimestral em anual.
 
-**6)** Dados processados são carregados em um banco de dados Azure SQL. (o schema e a estrutura das tabelas foram criados por meio deste código: [create_SQL_schema.py](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/create_SQL_schema.py) )
+**6)** Dados processados são carregados em um banco de dados Azure SQL. (o schema e a estrutura das tabelas foram criados por meio deste código: [create_SQL_schema.py](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/create_SQL_schema.py){:target="_blank"} )
 
-**7)** Dados históricos, de 2014 a 2023, são extraídos, processados e enviados ao Azure SQL por meio de um código em python (ver [download_orcamento_federal.py](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/download_orcamento_federal.py) e [send_historical_to_sql.py](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/send_historical_to_sql.py))
+**7)** Dados históricos, de 2014 a 2023, são extraídos, processados e enviados ao Azure SQL por meio de um código em python (ver [download_orcamento_federal.py](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/download_orcamento_federal.py) e [send_historical_to_sql.py](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/send_historical_to_sql.py){:target="_blank"})
 
-**8)** Por fim, após a realização das queries contidas na pasta [SQL Scripts](https://github.com/hugobaraujo88/orcamentogovfed/tree/main/SQL%20Scripts), queries estas que são executadas automaticamente cada vez que o pipeline de carregamento é acionado, o dashboard é criado no Power BI via direct query.
+**8)** Por fim, após a realização das queries contidas na pasta [SQL Scripts](https://github.com/hugobaraujo88/orcamentogovfed/tree/main/SQL%20Scripts){:target="_blank"}, queries estas que são executadas automaticamente cada vez que o pipeline de carregamento é acionado, o dashboard é criado no Power BI via direct query.
 
-Neste link: https://youtu.be/dawEcPuuV1s, é possível ter uma descrição resumida do projeto e da arquitetura **além da gravação, em tempo real, dos pipelines do projeto em execução**.
+Neste link: (https://youtu.be/dawEcPuuV1s){:target="_blank"}, é possível ter uma descrição resumida do projeto e da arquitetura **além da gravação, em tempo real, dos pipelines do projeto em execução**.
 
 # Pré-requisitos para execução desse projeto
 
 **-** Python + libs (requests, Pandas, textwrap, pyodbc, sqlalchemy, zipfile, os, urllib.parse ) 
 
-**-** Leitor de arquivos .ipynb (análise exploratória dos dados [analise_exploratoria.ipynb](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/analise_exploratoria.ipynb))
+**-** Leitor de arquivos .ipynb (análise exploratória dos dados [analise_exploratoria.ipynb](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/analise_exploratoria.ipynb){:target="_blank"})
 
 **-** Conta Azure
