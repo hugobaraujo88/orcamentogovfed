@@ -1,8 +1,8 @@
-## Projeto: Orçamento do Governo Federal | Panorama
+# Projeto: Orçamento do Governo Federal | Panorama
 
 Este projeto tem como objetivo extrair e analisar dados do orçamento federal, apresentando-os em um formato acessível e informativo por meio de um dashboard interativo. **O objetivo é permitir uma análise rápida e integrada, facilitando o entendimento de como os recursos do governo federal são arrecadados e alocados.**
 
-# Arquitetura do projeto (visão geral)
+## Arquitetura do projeto (visão geral)
 
 ![Exemplo de Imagem](https://raw.githubusercontent.com/hugobaraujo88/orcamentogovfed/main/img/transparencia_data_arch.png)
 
@@ -31,3 +31,12 @@ Neste link: https://youtu.be/dawEcPuuV1s, é possível ter uma descrição resum
 **-** Leitor de arquivos .ipynb (análise exploratória dos dados [analise_exploratoria.ipynb](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/analise_exploratoria.ipynb))
 
 **-** Conta Azure
+
+## Serviços utilizados na nuvem
+
+A tabela a seguir apresenta todos os serviços azure utilizados para realizar o projeto. Na pasta [Templates - Azure](https://github.com/hugobaraujo88/orcamentogovfed/tree/main/Templates%20-%20Azure), é possível encontrar o todos os 
+
+| Serviço       | Descrição     |
+| ------------- | ------------- |
+| Microsoft Entra  | Content Cell  |
+| Content Cell  | Content Cell  |
