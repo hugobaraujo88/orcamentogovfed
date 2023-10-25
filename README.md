@@ -2,7 +2,7 @@
 
 Este projeto tem como objetivo extrair e analisar dados do orçamento federal, apresentando-os em um formato acessível e informativo por meio de um dashboard interativo. **O objetivo é permitir uma análise rápida e integrada, facilitando o entendimento de como os recursos do governo federal são arrecadados e alocados.**
 
-## Arquitetura do projeto (visão geral)
+# Arquitetura do projeto (visão geral)
 
 ![Exemplo de Imagem](https://raw.githubusercontent.com/hugobaraujo88/orcamentogovfed/main/img/transparencia_data_arch.png)
 
@@ -23,3 +23,11 @@ Este projeto tem como objetivo extrair e analisar dados do orçamento federal, a
 **8)** Por fim, após a realização das queries contidas na pasta [SQL Scripts](https://github.com/hugobaraujo88/orcamentogovfed/tree/main/SQL%20Scripts), queries estas que são executadas automaticamente cada vez que o pipeline de carregamento é acionado, o dashboard é criado no Power BI via direct query.
 
 Neste link: https://youtu.be/dawEcPuuV1s, é possível ter uma descrição resumida do projeto e da arquitetura **além da gravação, em tempo real, dos pipelines do projeto em execução**.
+
+# Pré-requisitos para execução desse projeto
+
+**-** Python + libs (requests, Pandas, textwrap, pyodbc, sqlalchemy, zipfile, os, urllib.parse ) 
+
+**-** Leitor de arquivos .ipynb (análise exploratória dos dados [analise_exploratoria.ipynb](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/analise_exploratoria.ipynb))
+
+**-** Conta Azure
