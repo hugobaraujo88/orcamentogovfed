@@ -1,0 +1,36 @@
+{
+    "name": "ds_sinkasql_pib",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_asql",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "IBGE dataset"
+        },
+        "annotations": [],
+        "type": "AzureSqlTable",
+        "schema": [
+            {
+                "name": "id_pib",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "ano",
+                "type": "int",
+                "precision": 10
+            },
+            {
+                "name": "valor_pib",
+                "type": "int",
+                "precision": 10
+            }
+        ],
+        "typeProperties": {
+            "schema": "hist",
+            "table": "pib"
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

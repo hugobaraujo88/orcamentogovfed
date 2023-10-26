@@ -1,0 +1,22 @@
+{
+    "name": "ds_sourcedatalake_getfoldernames",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_datalake",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "Transparenciagov dataset"
+        },
+        "annotations": [],
+        "type": "Json",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileSystem": "processed"
+            }
+        },
+        "schema": {}
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

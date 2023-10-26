@@ -1,0 +1,452 @@
+{
+    "name": "pl_loadsql_transparenciagov",
+    "properties": {
+        "activities": [
+            {
+                "name": "Iterate through each folder name",
+                "type": "ForEach",
+                "dependsOn": [
+                    {
+                        "activity": "Get Folder Names",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Get current year",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "Get month",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "items": {
+                        "value": "@activity('Get Folder Names').output.childItems",
+                        "type": "Expression"
+                    },
+                    "isSequential": true,
+                    "activities": [
+                        {
+                            "name": "Send To SQL",
+                            "type": "Copy",
+                            "dependsOn": [
+                                {
+                                    "activity": "Pre-script SQL",
+                                    "dependencyConditions": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ],
+                            "policy": {
+                                "timeout": "0.12:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "source": {
+                                    "type": "DelimitedTextSource",
+                                    "storeSettings": {
+                                        "type": "AzureBlobFSReadSettings",
+                                        "recursive": true,
+                                        "wildcardFolderPath": {
+                                            "value": "@item().name",
+                                            "type": "Expression"
+                                        },
+                                        "wildcardFileName": "*.csv",
+                                        "enablePartitionDiscovery": false
+                                    },
+                                    "formatSettings": {
+                                        "type": "DelimitedTextReadSettings"
+                                    }
+                                },
+                                "sink": {
+                                    "type": "AzureSqlSink",
+                                    "writeBehavior": "insert",
+                                    "sqlWriterUseTableLock": false,
+                                    "disableMetricsCollection": false
+                                },
+                                "enableStaging": false,
+                                "translator": {
+                                    "type": "TabularTranslator",
+                                    "typeConversion": true,
+                                    "typeConversionSettings": {
+                                        "allowDataTruncation": true,
+                                        "treatBooleanAsNumber": false
+                                    }
+                                }
+                            },
+                            "inputs": [
+                                {
+                                    "referenceName": "ds_sourcedatalake_csv_processed",
+                                    "type": "DatasetReference"
+                                }
+                            ],
+                            "outputs": [
+                                {
+                                    "referenceName": "ds_sinkasql_transparenciagov",
+                                    "type": "DatasetReference",
+                                    "parameters": {
+                                        "tableName": {
+                                            "value": "@item().name",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Pre-script SQL",
+                            "description": "Some of the files are in an annual format and may contain duplicate values compared to the historical data. To avoid duplicates, this script will delete these instances from the historical database tables.",
+                            "type": "Script",
+                            "dependsOn": [],
+                            "policy": {
+                                "timeout": "0.00:11:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "linkedServiceName": {
+                                "referenceName": "ls_asql",
+                                "type": "LinkedServiceReference"
+                            },
+                            "typeProperties": {
+                                "scripts": [
+                                    {
+                                        "type": "NonQuery",
+                                        "text": {
+                                            "value": "@{\n    if(\n        equals(item().name, 'despesa_exec'), \n        concat('DELETE FROM hist.', item().name, ' where ano = ', variables('ano'), ' and mes = ', variables('mes')),\n        concat('DELETE FROM hist.', item().name, ' where ano = ', variables('ano'))\n    )          \n}",
+                                            "type": "Expression"
+                                        }
+                                    }
+                                ],
+                                "scriptBlockExecutionTimeout": "02:00:00"
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "Get Folder Names",
+                "type": "GetMetadata",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "dataset": {
+                        "referenceName": "ds_sourcedatalake_getfoldernames",
+                        "type": "DatasetReference"
+                    },
+                    "fieldList": [
+                        "childItems"
+                    ],
+                    "storeSettings": {
+                        "type": "AzureBlobFSReadSettings",
+                        "recursive": true,
+                        "enablePartitionDiscovery": false
+                    },
+                    "formatSettings": {
+                        "type": "JsonReadSettings"
+                    }
+                }
+            },
+            {
+                "name": "Get current year",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "ano",
+                    "value": {
+                        "value": "@formatDateTime(utcNow(),'yyyy')",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "Get month",
+                "description": "obs: it actually gets the past month because the data of one particular month is only available next month.",
+                "type": "SetVariable",
+                "dependsOn": [],
+                "policy": {
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "variableName": "mes",
+                    "value": {
+                        "value": "@formatDateTime(subtractFromTime(utcnow(), 1, 'Month'),'MM')",
+                        "type": "Expression"
+                    }
+                }
+            },
+            {
+                "name": "despesa_exec_ac_pib",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "Iterate through each folder name",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.despesa_exec_ac_pib  ------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.despesa_exec_ac_pib\n\n---------------------------------------------------------------------------------------------------\n--Valor executado mensal  -------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ncreate table #aux_cumulative_despesa_exec\n(\n\tano int,\n\tdespesa_ac float\n);\n\ninsert into #aux_cumulative_despesa_exec\n\tSELECT\n\t\t\tano,\n\t\t\tSUM(valor) as despesa_ac\n\t\tFROM hist.despesa_exec\n\t\t\tgroup by ano\n\n---------------------------------------------------------------------------------------------------\n--Receita executada (acumulada) como % do PIB do ano anteiror  ------------------------------------\n---------------------------------------------------------------------------------------------------\n\ninsert into dashboard.despesa_exec_ac_pib\n\tSELECT\n\n\t\tA.ano,\n\t   (A.despesa_ac / 1000000) / B.valor_pib AS [Despesa Exec. % PIB]\n\tFROM\n\t#aux_cumulative_despesa_exec A\n\t\tLEFT JOIN\n\t\t\thist.pib B ON A.ano = B.ano + 1\n\tORDER BY\n\t\tA.ano;\n\ndrop table #aux_cumulative_despesa_exec\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "despesa_receita_exec",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "despesa_exec_ac_pib",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.despesa_receita_exec ------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.despesa_receita_exec\n\n---------------------------------------------------------------------------------------------------\n--Despesas: Valor executado mensal + Valor executado acumulado mes a mes --------------------------\n---------------------------------------------------------------------------------------------------\n\nCREATE TABLE #aux_despesa_exec\n(\n    mes INT,\n    ano INT,\n    Despesa_Executada FLOAT\n);\n\nINSERT INTO #aux_despesa_exec\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(valor) AS Despesa_Executada\n\tFROM hist.despesa_exec\n\tGROUP BY ano, mes\n\tORDER BY ano, mes;\n\nCREATE TABLE #aux_cumulative_despesa_exec\n(\n    mes INT,\n    ano INT,\n    despesa_exec_c FLOAT\n);\n\nINSERT INTO #aux_cumulative_despesa_exec\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(Despesa_Executada) OVER (PARTITION BY ano ORDER BY ano, mes) AS despesa_exec_c\n\tFROM #aux_despesa_exec\n\tORDER BY ano, mes;\n\ndrop table #aux_despesa_exec\n\n---------------------------------------------------------------------------------------------------\n--Receitas: Valor executado mensal + Valor executado acumulado mes a mes --------------------------\n---------------------------------------------------------------------------------------------------\n\nCREATE TABLE #aux_receitas_real\n(\n    mes INT,\n    ano INT,\n    Receita_Executada FLOAT\n);\n\nINSERT INTO #aux_receitas_real\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(valor_receita_real) AS Receita_Executada\n\tFROM hist.receitas_real\n\tGROUP BY ano, mes\n\tORDER BY ano, mes;\n\nCREATE TABLE #aux_cumulative_receitas_real\n(\n    mes INT,\n    ano INT,\n    receita_exec_c FLOAT\n);\n\nINSERT INTO #aux_cumulative_receitas_real\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(Receita_Executada) OVER (PARTITION BY ano ORDER BY ano, mes) AS receita_exec_c\n\tFROM #aux_receitas_real\n\tORDER BY ano, mes;\n\ndrop table #aux_receitas_real\n\n---------------------------------------------------------------------------------------------------\n--Despesa Executada x Receita Executada -----------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ninsert into dashboard.despesa_receita_exec\n\tselect \n\t\t\tA.mes, \n\t\t\tA.ano,\n\t\t\tA.despesa_exec_c as [Despesa Executada],\n\t\t\tB.receita_exec_c as [Receita Executada]\n\tfrom #aux_cumulative_despesa_exec A\n\t\tleft join #aux_cumulative_receitas_real B on A.ano = B.ano\n\t\t\tand A.mes = B.mes order by A.ano, A.mes\n\n\t\t\t\n\ndrop table #aux_cumulative_receitas_real\ndrop table #aux_cumulative_despesa_exec\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "previsto_exec_despesa",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "despesa_receita_exec",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.previsto_exec_despesa -----------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.previsto_exec_despesa\n\n---------------------------------------------------------------------------------------------------\n--Valor previsto mensal (valor anual /12) ---------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ncreate table #aux_orcamento_despesa_ini\n(\n\tano int\n\t,valor_mensal  float\n)\n\ninsert into #aux_orcamento_despesa_ini\n\n\tSELECT \n\t\t ano\n\t\t,sum(valor_ini)/12\t\t\n\tFROM hist.orcamento_despesa_ini group by ano;\n\n---------------------------------------------------------------------------------------------------\n--Valor executado mensal + Valor executado acumulado mes a mes ------------------------------------\n---------------------------------------------------------------------------------------------------\n\nCREATE TABLE #aux_despesa_exec\n(\n    mes INT,\n    ano INT,\n    Despesa_Executada FLOAT\n);\n\nINSERT INTO #aux_despesa_exec\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(valor) AS Despesa_Executada\n\tFROM hist.despesa_exec\n\tGROUP BY ano, mes\n\tORDER BY ano, mes;\n\nCREATE TABLE #aux_cumulative_despesa_exec\n(\n    mes INT,\n    ano INT,\n    despesa_exec_c FLOAT\n);\n\nINSERT INTO #aux_cumulative_despesa_exec\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(Despesa_Executada) OVER (PARTITION BY ano ORDER BY ano, mes) AS despesa_exec_c\n\tFROM #aux_despesa_exec\n\tORDER BY ano, mes;\n\n---------------------------------------------------------------------------------------------------\n--Despesa Executada x Prevista --------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ninsert into dashboard.previsto_exec_despesa\n\tselect \n\n\t\tA.mes, \n\t\tA.ano, \n\t\tA.Despesa_Executada as [Despesa Executada],\n\t\tC.despesa_exec_c as [Despesa Executada Ac.],\n\t\t(B.valor_mensal*A.mes) as [Previsto Mensal Ac.], -- Previsto acumulado mes a mes\n\t\t[Despesa Prevista Anual] = max(B.valor_mensal*A.mes) over(partition by A.ano) -- Previsto no ano\n\tfrom #aux_despesa_exec A left join #aux_orcamento_despesa_ini B on A.ano = B.ano\n\t\tleft join #aux_cumulative_despesa_exec C on A.ano = C.ano and A.mes = C.mes\n\t\t\t\torder by A.ano, A.mes\n\n---------------------------------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ndrop table #aux_despesa_exec;\ndrop table #aux_orcamento_despesa_ini;\ndrop table #aux_cumulative_despesa_exec\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "previsto_exec_receita",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "previsto_exec_despesa",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.previsto_exec_receita -----------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.previsto_exec_receita\n\n---------------------------------------------------------------------------------------------------\n--Valor previsto mensal (valor anual /12) ---------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ncreate table #aux_receitas_prev\n(\n\tano int\n\t,valor_mensal  float\n)\n\ninsert into #aux_receitas_prev\n\tSELECT \n\t\t ano\n\t\t,sum(valor_receita_prev)/12\t\t\n\tFROM hist.receitas_prev group by ano;\n\n---------------------------------------------------------------------------------------------------\n--Valor executado mensal + Valor executado acumulado mes a mes ------------------------------------\n---------------------------------------------------------------------------------------------------\n\nCREATE TABLE #aux_receitas_real\n(\n    mes INT,\n    ano INT,\n    Receita_Executada FLOAT\n);\n\nINSERT INTO #aux_receitas_real\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(valor_receita_real) AS Receita_Executada\n\tFROM hist.receitas_real\n\tGROUP BY ano, mes\n\tORDER BY ano, mes;\n\nCREATE TABLE #aux_cumulative_receitas_real\n(\n    mes INT,\n    ano INT,\n    receita_exec_c FLOAT\n);\n\nINSERT INTO #aux_cumulative_receitas_real\n\tSELECT\n\t\tmes,\n\t\tano,\n\t\tSUM(Receita_Executada) OVER (PARTITION BY ano ORDER BY ano, mes) AS receita_exec_c\n\tFROM #aux_receitas_real\n\tORDER BY ano, mes;\n\n---------------------------------------------------------------------------------------------------\n--Despesa Executada x Prevista --------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ninsert into dashboard.previsto_exec_receita\n\tselect \n\t\tA.mes, \n\t\tA.ano, \n\t\tA.Receita_Executada as [Receita Executada],\n\t\tC.receita_exec_c as [Receita Executada Ac.],\n\t\t(B.valor_mensal*A.mes) as [Previsto Mensal Ac.], -- Previsto acumulado mes a mes\n\t\t[Receita Prevista Anual] = max(B.valor_mensal*A.mes) over(partition by A.ano) -- Previsto no ano\n\tfrom #aux_receitas_real A left join #aux_receitas_prev B on A.ano = B.ano\n\t\tleft join #aux_cumulative_receitas_real C on A.ano = C.ano and A.mes = C.mes\n\t\t\t\torder by A.ano, A.mes\n\n---------------------------------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ndrop table #aux_receitas_prev\ndrop table #aux_receitas_real\ndrop table #aux_cumulative_receitas_real\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "princ_despesas",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "previsto_exec_receita",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.princ_despesas ------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.princ_despesas\n\n---------------------------------------------------------------------------------------------------\n--Valor executado mensal por tipo  ----------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ncreate table #aux_princ_despesas\n\n(\n    ano INT,\n    despesa VARCHAR(255),\n    valor_total_ano_despesa FLOAT,\n\tranking int\n);\n\nINSERT INTO #aux_princ_despesas\n\tSELECT\n\t\t\tano, \n\t\t\tdespesa_exec_nome, \n\t\t\tSUM(valor),\n\t\t\tranking = row_number() over (partition by ano order by SUM(valor) desc)\n\t\tFROM hist.despesa_exec\n\t\t\tgroup by ano, despesa_exec_nome;\n\nINSERT INTO dashboard.princ_despesas\n\t select\n\t\tano,\n\t\tdespesa,\n\t\tvalor_total_ano_despesa,\n\t\tranking,\n\t\tvalor_total_ano_despesa/sum(valor_total_ano_despesa) over (partition by ano)\n\tfrom #aux_princ_despesas;\n\n\ndrop table #aux_princ_despesas\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "princ_receitas",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "princ_despesas",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.00:11:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.princ_receitas ------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.princ_receitas\n\n---------------------------------------------------------------------------------------------------\n--Valor executado mensal por tipo  ----------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ncreate table #aux_princ_receitas\n\n(\n    ano INT,\n    receita VARCHAR(255),\n    valor_total_ano_receita FLOAT,\n\tranking int\n);\n\nINSERT INTO #aux_princ_receitas\n\tSELECT\n\t\t\tano, \n\t\t\treceita_nome, \n\t\t\tSUM(valor_receita_real),\n\t\t\tranking = row_number() over (partition by A.ano order by SUM(valor_receita_real) desc)\n\t\tFROM hist.receitas_real A\n\t\t\tgroup by A.ano, A.receita_nome\n\nINSERT INTO dashboard.princ_receitas\n\t select\n\t\tano,\n\t\treceita,\n\t\tvalor_total_ano_receita,\n\t\tranking,\n\t\tvalor_total_ano_receita/sum(valor_total_ano_receita) over (partition by ano)\n\tfrom #aux_princ_receitas\n\ndrop table #aux_princ_receitas\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            },
+            {
+                "name": "receita_arrec_ac_pib",
+                "type": "Script",
+                "dependsOn": [
+                    {
+                        "activity": "princ_receitas",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "linkedServiceName": {
+                    "referenceName": "ls_asql",
+                    "type": "LinkedServiceReference"
+                },
+                "typeProperties": {
+                    "scripts": [
+                        {
+                            "type": "NonQuery",
+                            "text": "---------------------------------------------------------------------------------------------------\n--dashboard.receita_arrec_ac_pib -------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ntruncate table dashboard.receita_arrec_ac_pib\n\n---------------------------------------------------------------------------------------------------\n--Valor executado mensal  -------------------------------------------------------------------------\n---------------------------------------------------------------------------------------------------\n\ncreate table #aux_cumulative_receita_arrec\n(\n\tano int,\n\treceita_ac float\n);\n\ninsert into #aux_cumulative_receita_arrec\n\tSELECT\n\t\t\tano,\n\t\t\tSUM(valor_receita_real) as receita_ac\n\t\tFROM hist.receitas_real\n\t\t\tgroup by ano\n\n---------------------------------------------------------------------------------------------------\n--Receita executada (acumulada) como % do PIB do ano anteiror  ------------------------------------\n---------------------------------------------------------------------------------------------------\n\ninsert into dashboard.receita_arrec_ac_pib\n    SELECT\n\n\t\tA.ano,\n\t   (A.receita_ac / 1000000) / B.valor_pib AS [Despesa Exec. % PIB]\n\tFROM\n\t#aux_cumulative_receita_arrec A\n\t\tLEFT JOIN\n\t\t\thist.pib B ON A.ano = B.ano + 1\n\tORDER BY\n\t\tA.ano;\n\ndrop table #aux_cumulative_receita_arrec\n"
+                        }
+                    ],
+                    "scriptBlockExecutionTimeout": "02:00:00"
+                }
+            }
+        ],
+        "variables": {
+            "mes": {
+                "type": "String"
+            },
+            "ano": {
+                "type": "String"
+            }
+        },
+        "folder": {
+            "name": "Transparenciagov data pipeline"
+        },
+        "annotations": [],
+        "lastPublishTime": "2023-10-23T16:27:59Z"
+    },
+    "type": "Microsoft.DataFactory/factories/pipelines"
+}

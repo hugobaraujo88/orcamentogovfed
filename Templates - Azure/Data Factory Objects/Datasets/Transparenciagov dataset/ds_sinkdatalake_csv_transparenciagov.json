@@ -1,0 +1,26 @@
+{
+    "name": "ds_sinkdatalake_csv_transparenciagov",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_datalake",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "Transparenciagov dataset"
+        },
+        "annotations": [],
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileSystem": "extracted"
+            },
+            "columnDelimiter": ";",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": []
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,17 @@
+[
+    {
+        "relativeURL": "receitas/",
+        "directory" : "receitas",
+	"fileName" : "_Receitas.zip"
+    },
+    {
+        "relativeURL":"orcamento-despesa/",
+        "directory" : "orcamento-despesa",
+	"fileName" : "_OrcamentoDespesa.zip"
+    },
+    {
+        "relativeURL":"despesas-execucao/",
+        "directory" : "despesas-execucao",
+	"fileName" :"_Despesas.zip"
+    }
+]

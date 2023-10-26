@@ -1,0 +1,27 @@
+{
+    "name": "ds_sinkdatalake_csv_ibge",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_datalake",
+            "type": "LinkedServiceReference"
+        },
+        "folder": {
+            "name": "IBGE dataset"
+        },
+        "annotations": [],
+        "type": "DelimitedText",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "pib.csv",
+                "fileSystem": "pib"
+            },
+            "columnDelimiter": ",",
+            "escapeChar": "\\",
+            "firstRowAsHeader": true,
+            "quoteChar": "\""
+        },
+        "schema": []
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
