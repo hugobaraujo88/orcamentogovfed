@@ -24,7 +24,7 @@ Este projeto tem como objetivo extrair e analisar dados do orçamento federal, a
 
 Neste link: https://youtu.be/dawEcPuuV1s, é possível ter uma descrição resumida do projeto e da arquitetura **além da gravação, em tempo real, dos pipelines do projeto em execução**.
 
-# Pré-requisitos para execução desse projeto
+## Pré-requisitos para execução desse projeto
 
 **-** Python + libs (requests, Pandas, textwrap, pyodbc, sqlalchemy, zipfile, os, urllib.parse ) 
 
