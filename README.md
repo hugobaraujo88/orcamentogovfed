@@ -26,7 +26,7 @@ Este vídeo https://youtu.be/dawEcPuuV1s, contém uma descrição resumida do pr
 
 ## Dashboard
 
-[dashboard](https://raw.githubusercontent.com/hugobaraujo88/orcamentogovfed/main/img/printDashboard.png)
+![dashboard](https://raw.githubusercontent.com/hugobaraujo88/orcamentogovfed/main/img/printDashboard.png)
 
 
 ## Pré-requisitos para execução desse projeto
