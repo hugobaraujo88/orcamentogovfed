@@ -48,7 +48,8 @@ A tabela a seguir apresnta uma estimativa dos custos (em US$) para orquestraçã
 
 | Resource/Service                                | Quantity | Unit           | Unit Cost (US$) | Total   |
 |----------------------------------------|----------|----------------|-----------------|---------|
-| **Pipeline orchestration (Azure IR)**       | 34.00    | UN             | 0.001           | 0.034   |
+| **Pipeline orchestration (Azure IR)**       |    |              |           |   |
+| Activity Runs                               | 34.00    | UN             | 0.001           | 0.034   |
 | **Pipeline execution (Azure IR)**           |          |                |                 |         |
 | Data movement activities              | 0.600    | DIU-hour       | 0.25            | 0.150   |
 | Pipeline activities                   | 0.283    | Execution hours| 0.00025         | 0.0000715 |
