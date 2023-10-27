@@ -28,7 +28,9 @@ Este vídeo https://youtu.be/dawEcPuuV1s, contém uma descrição resumida do pr
 
 ![dashboard](https://raw.githubusercontent.com/hugobaraujo88/orcamentogovfed/main/img/printDashboard.png)
 
-Download do dashboard (arquvio -pbix que abre no power BI): [Orçamento Do Governo Federal - Panorama](https://github.com/hugobaraujo88/orcamentogovfed/raw/main/OrcamentoGovernoFederalPanorama%20-%20azure.pbix)
+Download do dashboard que utiliza a estrutura do Azure pronta (arquvio -pbix que abre no power BI): [Orçamento Do Governo Federal - Panorama - Azure](https://github.com/hugobaraujo88/orcamentogovfed/raw/main/OrcamentoGovernoFederalPanorama%20-%20azure.pbix).
+
+Download do dashboard sem a estrutura do Azure com dados importados e atualizados até setembro de 2023 (arquvio -pbix que abre no power BI): [Orçamento Do Governo Federal - Panorama](https://github.com/hugobaraujo88/orcamentogovfed/raw/main/OrcamentoGovernoFederalPanorama.pbix).
 
 
 ## Pré-requisitos para execução desse projeto
