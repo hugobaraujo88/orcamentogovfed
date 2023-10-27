@@ -28,6 +28,8 @@ Este vídeo https://youtu.be/dawEcPuuV1s, contém uma descrição resumida do pr
 
 ![dashboard](https://raw.githubusercontent.com/hugobaraujo88/orcamentogovfed/main/img/printDashboard.png)
 
+Download do dashboard (arquvio -pbix que abre no power BI): [Orçamento Do Governo Federal - Panorama](https://github.com/hugobaraujo88/orcamentogovfed/raw/main/OrcamentoGovernoFederalPanorama%20-%20azure.pbix)
+
 
 ## Pré-requisitos para execução desse projeto
 
@@ -40,6 +42,16 @@ Este vídeo https://youtu.be/dawEcPuuV1s, contém uma descrição resumida do pr
 ## Templates Azure
 
 A pasta [Templates - Azure](https://github.com/hugobaraujo88/orcamentogovfed/tree/main/Templates%20-%20Azure) contém os códigos de todos os serviços e objetos do Azure utilizados (formato .json), bem como as arquiteturas detalhadas de cada pipeline do projeto. Os códigos permitem a replicação do projeto dentro de qualquer assinatura azure.
+
+Para baixar o repositório utilizar os seguintes comando com o Git Bash em uma pasta qualquer:
+
+```
+git init
+
+git clone https://github.com/hugobaraujo88/orcamentogovfed 
+```
+
+Neste vídeo: demonstro como construir um pipeline a partir dos templates fornecidos neste repositório.
 
 
 ## Custos estimados do Projeto
