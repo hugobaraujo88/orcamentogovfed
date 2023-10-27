@@ -45,16 +45,13 @@ Download do dashboard sem a estrutura do Azure, com dados importados e atualizad
 
 A pasta [Templates - Azure](https://github.com/hugobaraujo88/orcamentogovfed/tree/main/Templates%20-%20Azure) contém os códigos de todos os serviços e objetos do Azure utilizados (formato .json), bem como as arquiteturas detalhadas de cada pipeline do projeto. Os códigos permitem a replicação do projeto dentro de qualquer assinatura azure.
 
-Para baixar o repositório utilizar os seguintes comando com o Git Bash em uma pasta qualquer:
+Para baixar o repositório, utilizar os seguintes comando com o Git Bash em uma pasta qualquer:
 
 ```
 git init
 
 git clone https://github.com/hugobaraujo88/orcamentogovfed 
 ```
-
-Neste vídeo: demonstro como construir um pipeline a partir dos templates fornecidos neste repositório.
-
 
 ## Custos estimados do Projeto
 
