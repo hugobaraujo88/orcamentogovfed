@@ -35,7 +35,7 @@ Download do dashboard sem a estrutura do Azure, com dados importados e atualizad
 
 ## Pré-requisitos para execução desse projeto
 
-**-** Python + libs (`requests`, `pandas`, `textwrap`, `pyodbc`, `sqlalchemy`, `zipfile`, `os`, `urllib.parse`) 
+**-** Python + libs (`requests`, `pandas`, `textwrap`, `textwrap`, `pyodbc`, `sqlalchemy`, `zipfile`, `os`, `urllib.parse`) 
 
 **-** Leitor de arquivos .ipynb (análise exploratória dos dados [analise_exploratoria.ipynb](https://github.com/hugobaraujo88/orcamentogovfed/blob/main/analise_exploratoria.ipynb))
 
