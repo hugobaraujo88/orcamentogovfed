@@ -65,9 +65,9 @@ A tabela a seguir apresnta uma estimativa dos custos (em US$) para orquestraçã
 | Data movement activities              | 0.600    | DIU-hour       | 0.25            | 0.150   |
 | Pipeline activities                   | 0.283    | Execution hours| 0.00025         | 0.0000715 |
 | External activities (DataBricks)      | 0.100    | Execution hours       | 0.756           | 0.0756   |
-| General purpose (Data Flow)             | 0.405    | vCore-hour     | 2.29            | 0.927   |
+| General purpose (Data Flow)             | 0.405    | vCore-hour     | 0.286            | 0.116   |
 | **Azure SQL**                               |          |                |                 |         |
 | Basic Storage                         | 5.00     | DTU            | 1.19            | 5.950   |
 | **Azure Data Lake Store Gen2**              |          |                |                 |         |
 | LRS Hot Storage                       | 0.11     | GB             | 0.02            | 0.002   |
-| **Total (US$)**                            |          |                |                 | **7.14**    |
+| **Total (US$)**                            |          |                |                 | **6.33**    |
